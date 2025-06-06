@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>VPN AI PREDICTOR</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            height: 100%;
+            font-family: 'Orbitron', sans-serif;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+
+        /* Glass card container */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+            text-align: center;
+            margin: auto;
+        }
+
+        .title {
+            font-size: 30px;
+            color: #ff4b4b;
+            text-shadow: 0 0 8px #ff4b4b;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05);
+        }
+
+        .label {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .big { color: lightblue; }
+        .small { color: orange; }
+        .number-box { color: #00ff9c; }
+
+        .predict-btn, .telegram-btn {
+            margin-top: 15px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .predict-btn {
+            background: #ff4b4b;
+            color: #fff;
+        }
+
+        .predict-btn:hover {
+            background: #fff;
+            color: #ff4b4b;
+        }
+
+        .telegram-btn {
+            background: #0088cc;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .telegram-btn:hover {
+            background: #005f8c;
+        }
+
+        .result-container {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #00ff9c;
+            text-shadow: 0 0 5px #00ff9c;
+        }
+
+        .box {
+            display: inline-block;
+            padding: 6px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid red;
+            text-shadow: 0 0 10px red;
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 12px;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            font-size: 14px;
+            box-shadow: 0px 0px 10px red;
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadeIn 0.5s, fadeOut 0.5s 2.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        @media (max-width: 480px) {
+            .title { font-size: 24px; }
+            .value { font-size: 18px; }
+        }
+
+        /* LOGIN OVERLAY */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #loginOverlay input[type="password"] {
+            padding: 12px 16px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            width: 250px;
+            margin-bottom: 15px;
+        }
+
+        #loginOverlay button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            background: #ff4b4b;
+            color: white;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s ease;
+        }
+
+        #loginOverlay button:hover {
+            background: #fff;
+            color: #ff4b4b;
+        }
+
+        #loginMessage {
+            margin-top: 10px;
+            color: #ff4b4b;
+            font-weight: bold;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+    <h2 style="color:#ff4b4b; text-shadow: 0 0 8px #ff4b4b;">Enter Password to Access</h2>
+    <input type="password" id="passwordInput" placeholder="Enter Password" />
+    <button onclick="checkPassword()">Login</button>
+    <div id="loginMessage"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="glass-card" id="mainContent" style="display:none;">
+    <div class="title">VPN AI PREDICTOR</div>
+
+    <div class="section">
+        <div class="label">PERIOD</div>
+        <div class="value" id="result-period">--</div>
+    </div>
+
+    <div class="section">
+        <div class="label">SIGNAL</div>
+        <div class="value" id="result-signal">--</div>
+    </div>
+
+    <div class="section">
+        <div class="label">PREDICTED NUMBERS</div>
+        <div class="value" id="result-numbers">--/--</div>
+    </div>
+
+    <div class="result-container" id="live-result">LIVE UPDATING...</div>
+
+    <button class="predict-btn" onclick="fetchPrediction()">Predict</button>
+    <button class="telegram-btn" onclick="openTelegram()">Join Telegram</button>
+
+    <!-- Prediction History Section -->
+    <div class="section" style="margin-top: 20px;">
+        <div class="label">PREDICTION HISTORY</div>
+        <div id="history" style="max-height: 150px; overflow-y: auto; text-align: left; font-size: 14px; line-height: 1.6;"></div>
+        <button class="predict-btn" style="background:#555;margin-top:10px;" onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+
+<div id="toast">Toast Message</div>
+
+<script>
+    const PASSWORD = "VPNONTOP";
+
+    function checkPassword() {
+        const input = document.getElementById("passwordInput").value;
+        const message = document.getElementById("loginMessage");
+
+        if (input === PASSWORD) {
+            document.getElementById("loginOverlay").style.display = "none";
+            document.getElementById("mainContent").style.display = "block";
+            startApp();
+        } else {
+            message.innerText = "❌ Incorrect Password!";
+        }
+    }
+
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function openTelegram() {
+        window.open("https://t.me/+1LKmAOb3OTUyODI9", "_blank");
+    }
+
+    // Existing app code wrapped in startApp function to run after login
+    function startApp() {
+        const API_URL = 'https://api.bdg88zf.com/api/webapi/GetGameIssue';
+        const REQUEST_DATA = {
+            typeId: 1,
+            language: 0,
+            random: "e7fe6c090da2495ab8290dac551ef1ed",
+            signature: "1F390E2B2D8A55D693E57FD905AE73A7",
+            timestamp: 1723726679
+        };
+
+        let periodResults = {};
+
+        function fetchPrediction() {
+            fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json;charset=UTF-8"
+                },
+                body: JSON.stringify(REQUEST_DATA)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.data) {
+                    let issueNumber = data.data.issueNumber || "Unknown";
+                    let lotteryNumber = data.data.lotteryNumber || ""; // e.g. "5,3,8,2,9"
+
+                    if (!periodResults[issueNumber]) {
+                        let num1 = Math.floor(Math.random() * 10);
+                        let num2 = (num1 + 3) % 10;
+
+                        let sumDigits = issueNumber.split('').reduce((acc, num) => acc + parseInt(num), 0);
+                        let bigSmallPrediction = sumDigits % 2 === 0 ? "Big" : "Small";
+
+                        let winStatus = "Pending";
+
+                        if (lotteryNumber) {
+                            let nums = lotteryNumber.split(",").map(n => parseInt(n));
+                            let sum = nums.reduce((a, b) => a + b, 0);
+                            let lastDigit = sum % 10;
+
+                            if (lastDigit === num1 || lastDigit === num2) {
+                                winStatus = "WIN";
+                            } else {
+                                winStatus = "LOSS";
+                            }
+                        }
+
+                        periodResults[issueNumber] = {
+                            bigSmallPrediction,
+                            predictedNumbers: `${num1}/${num2}`,
+                            winStatus
+                        };
+
+                        addToHistory(issueNumber, bigSmallPrediction, `${num1}/${num2}`, winStatus);
+                    }
+
+                    let { bigSmallPrediction, predictedNumbers } = periodResults[issueNumber];
+
+                    document.getElementById("result-period").innerHTML = `<span class="box">${issueNumber}</span>`;
+                    document.getElementById("result-signal").innerHTML = `<span class="box ${bigSmallPrediction.toLowerCase()}">${bigSmallPrediction}</span>`;
+                    document.getElementById("result-numbers").innerHTML = `<span class="box number-box">${predictedNumbers}</span>`;
+                    document.getElementById("live-result").innerText = "✅ LIVE DATA UPDATED!";
+                    showToast("✅ Prediction Updated!");
+                } else {
+                    document.getElementById("live-result").innerText = "⚠️ ERROR!";
+                    showToast("⚠️ API ERROR!");
+                }
+            })
+            .catch(error => {
+                document.getElementById("live-result").innerText = "⚠️ ERROR!";
+                console.error("API Fetch Error:", error);
+                showToast("⚠️ FETCH ERROR!");
+            });
+        }
+
+        function addToHistory(period, signal, numbers, winStatus = "Pending") {
+            const historyDiv = document.getElementById("history");
+            const color = winStatus === 'WIN' ? 'lightgreen' : (winStatus === 'LOSS' ? 'red' : 'yellow');
+            const entry = `<div>🕑 <b>${period}</b> | Signal: <span style="color:${signal === 'Big' ? 'lightblue' : 'orange'};">${signal}</span> | Numbers: <span style="color:#00ff9c;">${numbers}</span> | Result: <b style="color:${color};">${winStatus}</b></div>`;
+            historyDiv.innerHTML = entry + historyDiv.innerHTML;
+        }
+
+        function clearHistory() {
+            document.getElementById("history").innerHTML = "";
+            showToast("🗑️ History Cleared!");
+        }
+
+        window.clearHistory = clearHistory;
+        window.fetchPrediction = fetchPrediction;
+
+        fetchPrediction();
+        setInterval(fetchPrediction, 10000);
+    }
+
+</script>
+
+</body>
+</html>
